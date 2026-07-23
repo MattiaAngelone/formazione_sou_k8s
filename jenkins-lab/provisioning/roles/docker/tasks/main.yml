@@ -1,0 +1,39 @@
+---
+- name: Installa dnf-plugins-core (fornisce config-manager)
+  ansible.builtin.dnf:
+    name: dnf-plugins-core
+    state: present
+
+- name: Aggiunge il repository ufficiale docker CE
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Installa Docker Engine, CLI e containerd
+  ansible.builtin.dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+
+- name: Avvia e abilita il servizio Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Aggiunge l'utente vagrant al gruppo docker
+  ansible.builtin.user:
+    name: vagrant
+    groups: docker
+    append: true
+
+- name: Assicura la presenza di pip
+  ansible.builtin.dnf:
+    name: python3-pip
+    state: present
+
+- name: installa SDK Docker per python (serve ai moduli Ansible)
+  ansible.builtin.pip:
+    name: docker

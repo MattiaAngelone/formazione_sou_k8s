@@ -1,0 +1,46 @@
+---
+- name: carica le variabili cifrate del vault
+  ansible.builtin.include_vars: vault.yml
+
+- name: Crea la rete Docker per Jenkins
+  community.docker.docker_network:
+    name: jenkins-net
+    driver: bridge
+    ipam_config:
+      - subnet: 172.20.0.0/16
+        gateway: 172.20.0.1
+
+- name: Crea il volume per la home di jenkins
+  community.docker.docker_volume:
+    name: jenkins_home
+
+- name: Avvia il container Jenkins Master
+  community.docker.docker_container:
+    name: jenkins-master
+    image: jenkins/jenkins:lts
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: jenkins-net
+        ipv4_address: "{{ jenkins_master_ip }}"
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+- name: Avvia il container jenkins agent
+  community.docker.docker_container:
+    name: jenkins-agent
+    image: jenkins/inbound-agent:latest
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: jenkins-net
+        ipv4_address: "{{ jenkins_agent_ip }}"
+    env:
+      JENKINS_URL: "http://{{ jenkins_master_ip }}:8080"
+      JENKINS_AGENT_NAME: "{{ jenkins_agent_name }}"
+      JENKINS_SECRET: "{{ jenkins_agent_secret }}"
+      JENKINS_AGENT_WORKDIR: "/home/jenkins/agent"
+      JENKINS_WEB_SOCKET: "true" 
