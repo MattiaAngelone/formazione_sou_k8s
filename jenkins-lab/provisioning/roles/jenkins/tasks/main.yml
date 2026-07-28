@@ -29,15 +29,39 @@
     volumes:
       - jenkins_home:/var/jenkins_home
 
+- name: crea la directory di build per l'agent
+  ansible.builtin.file:
+    path: /opt/agent-build
+    state: directory
+    mode: "0755"
+
+- name: Copia il Dockerfile dell'agent
+  ansible.builtin.copy:
+    src: Dockerfile-agent
+    dest: /opt/agent-build/Dockerfile
+
+- name: Builda l'immagine Agent con il client Docker
+  community.docker.docker_image:
+    name: jenkins-agent-docker
+    tag: latest
+    source: build
+    build:
+      path: /opt/agent-build
+    force_source: true
+    state: present
+
 - name: Avvia il container jenkins agent
   community.docker.docker_container:
     name: jenkins-agent
-    image: jenkins/inbound-agent:latest
+    image: jenkins-agent-docker:latest
+    user: root
     state: started
     restart_policy: unless-stopped
     networks:
       - name: jenkins-net
         ipv4_address: "{{ jenkins_agent_ip }}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     env:
       JENKINS_URL: "http://{{ jenkins_master_ip }}:8080"
       JENKINS_AGENT_NAME: "{{ jenkins_agent_name }}"
