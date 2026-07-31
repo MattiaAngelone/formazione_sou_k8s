@@ -12,10 +12,29 @@ pipeline {
             }
         }
 
+        stage('Determina il tag') {
+            steps {
+                script {
+                    if (env.TAG_NAME) {
+                        IMAGE_TAG = env.TAG_NAME
+                    } else if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'main') {
+                        IMAGE_TAG = 'latest'
+                    } else if (env.BRANCH_NAME == 'develop') {
+                        def shortSha = env.GIT_COMMIT.take(7)
+                        IMAGE_TAG = "develop-${shortSha}"
+                    } else {
+                        IMAGE_TAG = env.BRANCH_NAME
+                    }
+                    echo "Tag immagine calcolato: ${IMAGE_TAG}"
+                }
+            }
+        }
+
+
         stage('Build') {
             steps {
                 script {
-                    dockerImage = docker.build("${IMAGE_NAME}:latest", "./flask-app")
+                    dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "./flask-app")
                 }
             }
         }
@@ -30,4 +49,4 @@ pipeline {
             }
         }
     }
-}            
+}
