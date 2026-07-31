@@ -37,9 +37,7 @@ when {
 ```
 
 `when` decide se lo stage che la contiene debba essere eseguito. Si colloca dentro `stage`,
-prima di `steps`.
-Il blocco `when` stabilisce se lo stage deve essere eseguito.
-L'espressione restituisce true soltanto quando l'utente ha selezionato `development`:
+prima di `steps`. L'espressione restituisce true soltanto quando l'utente ha selezionato `development`:
 
 Se la condizione è **vera**, Jenkins esegue i passi dello stage e scrive nel log:
 
@@ -59,10 +57,6 @@ eseguito uno solo. Quello escluso riporta:
 ```
 Stage "DEVELOPMENT" skipped due to when conditional
 ```
-
-Lo stage esiste in ogni esecuzione, e `when` decide unicamente se eseguirlo. In una pipeline
-scripted, dove lo stesso risultato si otterrebbe con un `if/else`, lo stage non eseguito non
-comparirebbe affatto, perché la chiamata che lo crea non verrebbe mai raggiunta.
 
 ### Primo lancio
 
