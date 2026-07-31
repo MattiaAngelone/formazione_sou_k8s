@@ -16,7 +16,7 @@ pipeline {
                 expression { params.ENVIRONMENT == 'development' }
             }
             steps {
-                echo "Ambiente selezionato:  ${params.ENVIRONMENTS}"
+                echo "Ambiente selezionato: ${params.ENVIRONMENTS}"
             }
         }
   
