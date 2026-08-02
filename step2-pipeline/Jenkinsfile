@@ -34,7 +34,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "./flask-app")
+                    dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "./step2-pipeline/flask-app")
                 }
             }
         }
