@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        dockerImage.push('IMAGE_TAG')
+                        dockerImage.push(IMAGE_TAG)
                     } 
                 }
             }
