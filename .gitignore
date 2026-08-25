@@ -1,0 +1,14 @@
+# --- materiale crittografico: MAI committare ---
+*.key
+*.pem
+*.p12
+*.pfx
+certs/
+secrets/
+
+# --- Helm ---
+charts/*/charts/          # dipendenze scaricate da helm dependency update
+*.tgz                     # pacchetti prodotti da helm package
+
+# --- sistema ---
+.DS_Store
