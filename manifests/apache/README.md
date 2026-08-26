@@ -7,7 +7,7 @@ Deploy di Apache HTTPS Server su un cluster Kubernetes locale, con:
 - certificato TLS autofirmato conservato in un **Secret** e montato nei Pod come volume;
 - esposizione interna tramite **Service** di tipo ClusterIP;
 - esposizione esterna tramite **NGINX Ingress Controller**;
-- routing basato sul nome `apache.formazione.local`;
+- routing basato sul nome `apache.formazione.local`
 - risoluzione locale del nome tramite `/etc/hosts`.
 
 ---
