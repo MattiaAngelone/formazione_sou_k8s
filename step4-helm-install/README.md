@@ -92,57 +92,6 @@ docker exec jenkins-agent helm version
 docker exec jenkins-agent curl -sk https://192.168.56.21:8443/version
 ```
 
-## Pipeline dichiarativa
-
-Il Jenkinsfile si trova in:
-
-```text
-step4-helm-install/Jenkinsfile
-```
-
-```groovy
-pipeline {
-    agent { label 'docker-agent' }
-
-    parameters {
-        string(
-            name: 'IMAGE_TAG',
-            defaultValue: 'latest',
-            description: 'Tag di flask-app-example da rilasciare'
-        )
-    }
-
-    environment {
-        CHART_PATH    = 'charts/flask-app-example'
-        RELEASE_NAME  = 'flask-app-example'
-        K8S_NAMESPACE = 'formazione-sou'
-    }
-
-    stages {
-        stage('Deploy') {
-            steps {
-                withCredentials([
-                    file(
-                        credentialsId: 'kubeconfig-formazione-sou',
-                        variable: 'KUBECONFIG'
-                    )
-                ]) {
-                    sh '''
-                        set -eu
-
-                        helm upgrade --install "${RELEASE_NAME}" "${CHART_PATH}" \
-                          --namespace "${K8S_NAMESPACE}" \
-                          --set-string image.tag="${IMAGE_TAG:-latest}" \
-                          --atomic \
-                          --timeout 5m
-                    '''
-                }
-            }
-        }
-    }
-}
-```
-
 ### Funzionamento della pipeline
 
 - `agent { label 'docker-agent' }` esegue il job sull’agent che contiene Helm e `kubectl`.
