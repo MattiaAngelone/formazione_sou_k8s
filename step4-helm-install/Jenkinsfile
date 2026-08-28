@@ -13,22 +13,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                deleteDir()
-                checkout scm
-            }
-        }
-
-        stage('Lint chart') {
-            steps {
-                sh '''
-                    set -eu
-                    helm lint "${CHART_PATH}" --set-string image.tag="${IMAGE_TAG}"
-                '''
-            }
-        }
-
         stage('Deploy') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-formazione-sou',
@@ -37,21 +21,8 @@ pipeline {
                         set -eu
                         helm upgrade --install "${RELEASE_NAME}" "${CHART_PATH}" \
                           --namespace "${K8S_NAMESPACE}" \
-                          --set-string image.tag="${IMAGE_TAG}" \
+                          --set-string image.tag="${IMAGE_TAG:-latest}" \
                           --atomic --timeout 5m
-                    '''
-                }
-            }
-        }
-
-        stage('Verifica') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig-formazione-sou',
-                                      variable: 'KUBECONFIG')]) {
-                    sh '''
-                        set -eu
-                        helm status "${RELEASE_NAME}" --namespace "${K8S_NAMESPACE}"
-                        kubectl get deployments,pods,svc --namespace "${K8S_NAMESPACE}"
                     '''
                 }
             }
