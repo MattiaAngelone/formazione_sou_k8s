@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-ssl-conf
+data:
+  httpd-ssl.conf: |
+    Listen 443
+    SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1
+    SSLSessionCache "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
+
+    <VirtualHost *:443>
+        ServerName {{ .Values.host }}
+        DocumentRoot "/usr/local/apache2/htdocs"
+
+        SSLEngine on
+        SSLCertificateFile    "/usr/local/apache2/conf/tls/tls.crt"
+        SSLCertificateKeyFile "/usr/local/apache2/conf/tls/tls.key"
+
+        ErrorLog  /proc/self/fd/2
+        CustomLog /proc/self/fd/1 combined
+      </VirtualHost>
