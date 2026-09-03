@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache-ssl-conf
+  namespace: formazione-sou
+data:
+  httpd-ssl.conf: |
+    Listen 8443
+
+    SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+    SSLCipherSuite          HIGH:!aNULL:!MD5
+    SSLHonorCipherOrder     on
+    SSLSessionCache         "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
+    SSLSessionCacheTimeout  300
+
+    <VirtualHost *:8443>
+        ServerName   apache.formazione.local
+        DocumentRoot "/usr/local/apache2/htdocs"
+
+        SSLEngine on
+        SSLCertificateFile    "/usr/local/apache2/conf/tls/tls.crt"
+        SSLCertificateKeyFile "/usr/local/apache2/conf/tls/tls.key"
+
+        Alias /healthz /usr/local/apache2/htdocs/index.html
+        Alias /readyz /usr/local/apache2/htdocs/index.html
+
+        ErrorLog  /proc/self/fd/2
+        CustomLog /proc/self/fd/1 "%h %l %u %t \"%r\" %>s %b"
+    </VirtualHost>

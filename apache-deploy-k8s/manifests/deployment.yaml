@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache
+  namespace: formazione-sou
+  labels:
+    app: apache
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      containers:
+        - name: httpd
+          image: httpd:2.4
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              sed -i \
+                -e 's|^Listen 80$|Listen 8080|' \
+                -e 's|^#\(LoadModule ssl_module .*\)$|\1|' \
+                -e 's|^#\(LoadModule socache_shmcb_module .*\)$|\1|' \
+                -e 's|^#\(Include conf/extra/httpd-ssl.conf\)$|\1|' \
+                /usr/local/apache2/conf/httpd.conf
+              exec httpd-foreground
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: https
+              containerPort: 8443
+
+          volumeMounts:
+            - name: tls
+              mountPath: /usr/local/apache2/conf/tls
+              readOnly: true
+            - name: ssl-conf
+              mountPath: /usr/local/apache2/conf/extra/httpd-ssl.conf
+              subPath: httpd-ssl.conf
+              readOnly: true
+
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 2
+            failureThreshold: 30
+
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 2
+              
+      volumes:
+        - name: tls
+          secret:
+            secretName: apache-tls
+            defaultMode: 0400
+        - name: ssl-conf
+          configMap:
+            name: apache-ssl-conf

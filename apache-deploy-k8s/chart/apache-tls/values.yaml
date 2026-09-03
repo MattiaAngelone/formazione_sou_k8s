@@ -1,0 +1,20 @@
+replicaCount: 2
+
+image:
+  repository: httpd
+  tag: "2.4"
+
+host: apache.formazione.local
+ingressClassName: nginx
+
+containerPorts:
+  http: 8080
+  https: 8443
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
