@@ -15,22 +15,16 @@ spec:
       labels:
         app: apache
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: httpd
           image: httpd:2.4
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              sed -i \
-                -e 's|^Listen 80$|Listen 8080|' \
-                -e 's|^#\(LoadModule ssl_module .*\)$|\1|' \
-                -e 's|^#\(LoadModule socache_shmcb_module .*\)$|\1|' \
-                -e 's|^#\(Include conf/extra/httpd-ssl.conf\)$|\1|' \
-                /usr/local/apache2/conf/httpd.conf
-              exec httpd-foreground
 
           securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
@@ -42,6 +36,12 @@ spec:
               containerPort: 8443
 
           volumeMounts:
+            - name: httpd-conf
+              mounthPath: /usr/local/apache2/conf/httpd.conf
+              subPath: httpd.conf
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
             - name: tls
               mountPath: /usr/local/apache2/conf/tls
               readOnly: true
@@ -77,10 +77,15 @@ spec:
             failureThreshold: 2
               
       volumes:
+        - name: httpd-conf
+          configMap:
+            name: apache-conf
+        - name: tmp
+          emptyDir: {}
         - name: tls
           secret:
             secretName: apache-tls
-            defaultMode: 0400
+            defaultMode: 0440
         - name: ssl-conf
           configMap:
             name: apache-ssl-conf
