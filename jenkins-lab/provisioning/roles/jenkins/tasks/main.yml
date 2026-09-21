@@ -19,12 +19,12 @@
     name: jenkins-master
     image: jenkins/jenkins:lts
     state: started
-    restart_policy: unless-stopped
+    restart_policy: unless-stopped  # riparte da solo dopo un riavvio
     networks:
       - name: jenkins-net
         ipv4_address: "{{ jenkins_master_ip }}"
     ports:
-      - "8080:8080"
+      - "8080:8080"    # porta 8080 -- interfaccia web; porta 50000 -- porta su cui si collegano gli agent
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
@@ -61,10 +61,10 @@
       - name: jenkins-net
         ipv4_address: "{{ jenkins_agent_ip }}"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock  # montaggio del socket che permette al CLI dentro l'agent di comandare il motore docker della VM
     env:
-      JENKINS_URL: "http://{{ jenkins_master_ip }}:8080"
+      JENKINS_URL: "http://{{ jenkins_master_ip }}:8080"  # l'agent cerca l'indirizzo fisso del master per connettersi
       JENKINS_AGENT_NAME: "{{ jenkins_agent_name }}"
       JENKINS_SECRET: "{{ jenkins_agent_secret }}"
       JENKINS_AGENT_WORKDIR: "/home/jenkins/agent"
-      JENKINS_WEB_SOCKET: "true" 
+      JENKINS_WEB_SOCKET: "true"  # fa collegare l'agent via websocket sulla porta 8080
