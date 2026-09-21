@@ -2,8 +2,23 @@ FROM jenkins/inbound-agent:latest
 
 USER root
 
+ARG KUBECTL_VERSION=v1.35.1
+ARG HELM_VERSION=v4.2.4
+
 RUN apt-get update && \
     apt-get install -y docker.io && \
     rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+ && curl -fsSLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
+ && echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check \
+ && chmod +x kubectl && mv kubectl /usr/local/bin/kubectl && rm kubectl.sha256
+
+RUN curl -fsSLO "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" \
+ && curl -fsSLO "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz.sha256sum" \
+ && sha256sum --check "helm-${HELM_VERSION}-linux-amd64.tar.gz.sha256sum" \
+ && tar -xzf "helm-${HELM_VERSION}-linux-amd64.tar.gz" --strip-components=1 \
+      -C /usr/local/bin linux-amd64/helm \
+ && rm -f helm-${HELM_VERSION}-linux-amd64.tar.gz*
 
 USER jenkins
