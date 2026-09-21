@@ -12,3 +12,13 @@ charts/*/charts/          # dipendenze scaricate da helm dependency update
 
 # --- sistema ---
 .DS_Store
+
+*kubeconfig
+*.crt
+*-export.json
+
+reader-kubeconfig
+reader-ca.crt
+
+.vagrant/
+*.log
