@@ -1,10 +1,10 @@
 ---
-- name: Installa dnf-plugins-core (fornisce config-manager)
+- name: Installa dnf-plugins-core (fornisce config-manager per gestire repository)
   ansible.builtin.dnf:
     name: dnf-plugins-core
     state: present
 
-- name: Aggiunge il repository ufficiale docker CE
+- name: Aggiunge il repository ufficiale docker CE 
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docker-ce.repo
