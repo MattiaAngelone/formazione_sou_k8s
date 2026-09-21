@@ -1,18 +1,18 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "generic/rocky9"
   config.vm.hostname = "jenkins"
-  config.vm.network "private_network", ip: "192.168.56.20"
+  config.vm.network "private_network", ip: "192.168.56.20"  # indirizzo UI Jenkins
 
-  config.vm.synced_folder ".", "/vagrant", type: "rsync"
+  config.vm.synced_folder ".", "/vagrant", type: "rsync"  # collega la cartella di progetto sul MAC alla cartella /vagrant sulla VM
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 4096
     vb.cpus = 2
   end
   
-  config.vm.provision "ansible_local" do |ansible|
-    ansible.playbook = "provisioning/playbook.yml"
-    ansible.galaxy_role_file = "provisioning/requirements.yml"
-    ansible.vault_password_file = "provisioning/.vault_pass"
+  config.vm.provision "ansible_local" do |ansible|  # dice a vagrant di installare ansible dentro la VM e di eseguire lì il playbook
+    ansible.playbook = "provisioning/playbook.yml"  # quale playbook  
+    ansible.galaxy_role_file = "provisioning/requirements.yml"  # quali dipendenze
+    ansible.vault_password_file = "provisioning/.vault_pass"  # dove leggere la password del vault
   end
 end
