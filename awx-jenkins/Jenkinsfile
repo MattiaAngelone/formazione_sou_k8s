@@ -1,0 +1,38 @@
+pipeline {
+    agent { label 'docker-agent' }
+
+    triggers {
+        GenericTrigger(
+            GenericVariables: [
+                [key: 'JAVA_B64',   value: '$.java_b64'],
+                [key: 'AWX_JOB_ID', value: '$.awx_job_id']
+            ],
+            token: 'awx-java-build',
+            causeString: 'Avviato da AWX, job $AWX_JOB_ID'
+        )
+    }
+
+    stages {
+        stage('Crea artefatto') {
+            steps {
+                sh '''
+                    [ -n "$JAVA_B64" ] || { echo "Nessun dato da AWX"; exit 1; }
+                    echo "$JAVA_B64" | base64 -d > example.java
+                    cat example.java
+                '''
+                archiveArtifacts artifacts: 'example.java'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh '''
+                    javac -version
+                    javac example.java
+                    java -cp . example
+                '''
+                archiveArtifacts artifacts: '*.class'
+            }
+        }
+    }
+}
+
