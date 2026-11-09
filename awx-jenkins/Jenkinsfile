@@ -3,7 +3,7 @@ pipeline {
 
     triggers {
         GenericTrigger(
-            GenericVariables: [
+            genericVariables: [
                 [key: 'JAVA_B64',   value: '$.java_b64'],
                 [key: 'AWX_JOB_ID', value: '$.awx_job_id']
             ],
