@@ -12,7 +12,7 @@
       register: java_file
 
     - name: Pubblica il contenuto negli artifacts del job
-      ansibile.builtin.set_stats:
+      ansible.builtin.set_stats:
         data:
           java_b64: "{{ java_file.content }}"
         aggregate: false
