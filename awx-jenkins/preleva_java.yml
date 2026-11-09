@@ -1,0 +1,18 @@
+---
+- name: Preleva example.java dalla vm
+  hosts: all
+  gather_facts: false
+  vars:
+    java_src: /home/vagrant/example.java
+
+  tasks:
+    - name: Leggi il file
+      ansible.builtin.slurp:
+        src: "{{ java_src }}"
+      register: java_file
+
+    - name: Pubblica il contenuto negli artifacts del job
+      ansibile.builtin.set_stats:
+        data:
+          java_b64: "{{ java_file.content }}"
+        aggregate: false
