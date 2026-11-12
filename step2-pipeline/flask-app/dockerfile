@@ -8,6 +8,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 
+RUN useradd --uid 1000 --no-create-home --shell /usr/sbin/nologin appuser
+RUN 1000
+
 EXPOSE 5000
 
 CMD ["opentelemetry-instrument", "python", "app.py"]
